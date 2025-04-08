@@ -1,0 +1,118 @@
+﻿@model PrinterServiceWebPart.ViewModels.CreateOrderViewModel
+
+@using (Html.BeginForm("Create", "Order", FormMethod.Post, new { enctype = "multipart/form-data", id = "orderForm" }))
+{
+    @Html.AntiForgeryToken()
+
+    <!-- Название заказа -->
+    <div class="form-group">
+        @Html.LabelFor(m => m.OrderName)
+        @Html.TextBoxFor(m => m.OrderName, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.OrderName)
+    </div>
+
+    <!-- Комментарий -->
+    <div class="form-group">
+        @Html.LabelFor(m => m.Comment)
+        @Html.TextAreaFor(m => m.Comment, new { @class = "form-control", rows = 3 })
+        @Html.ValidationMessageFor(m => m.Comment)
+    </div>
+
+    <!-- Выбор материала -->
+    <div class="form-group">
+        @Html.LabelFor(m => m.SelectedMaterialId)
+        @Html.DropDownListFor(m => m.SelectedMaterialId,
+            ViewBag.Materials as SelectList,
+            "Выберите материал",
+            new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.SelectedMaterialId)
+    </div>
+
+    <!-- Плотность печати -->
+    <div class="form-group">
+        @Html.LabelFor(m => m.Density)
+        <select class="form-control" id="density" name="Density">
+            <option value="1">Низкая</option>
+            <option value="2">Средняя</option>
+            <option value="3">Высокая</option>
+        </select>
+        @Html.ValidationMessageFor(m => m.Density)
+    </div>
+
+        <!-- Загрузка файлов -->
+        <div class="form-group">
+            <label>Файлы моделей</label>
+            <input type="file" name="Files" id="files" multiple class="form-control-file" />
+            @Html.ValidationMessageFor(m => m.Files)
+        </div>
+
+    <!-- Кнопки -->
+    <button type="button" class="btn btn-primary" onclick="calculatePrice()">
+        Рассчитать стоимость
+    </button>
+    <button type="submit" class="btn btn-success">Создать заказ</button>
+
+    <!-- Модальное окно подтверждения -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтверждение заказа</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Стоимость заказа: <span id="finalPrice"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" onclick="submitForm()">Подтвердить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function calculatePrice() {
+            const formData = new FormData(document.getElementById('orderForm'));
+            formData.append('SelectedMaterialId', document.getElementById('SelectedMaterialId').value);
+            formData.append('Dencity', document.getElementById('Dencity'));
+            const filesInput = document.getElementById('files');
+            for (let i = 0; i < filesInput.files.length; i++) {
+                formData.append('Files', filesInput.files[i]);
+            }
+
+            // Валидация обязательных полей
+            if (!formData.get('OrderName') ||
+                !formData.get('SelectedMaterialId') ||
+                !formData.get('Density') ||
+                !document.getElementById('files').files.length) {
+                alert('Заполните все обязательные поля!');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("CalculatePrice", "Order")',
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    $('#finalPrice').text(data.totalPrice + ' руб.');
+                    $('#confirmModal').modal('show');
+                },
+                error: function (xhr) {
+                    alert('Ошибка расчета: ' + xhr.responseJSON?.error);
+                }
+            });
+        }
+
+        function submitForm() {
+            document.getElementById('orderForm').submit();
+            $('#confirmModal').modal('hide');
+        }
+    </script>
+}

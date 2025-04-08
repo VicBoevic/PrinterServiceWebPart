@@ -1,0 +1,99 @@
+﻿@{
+    ViewBag.Title = "О нашем сервисе 3D-печати";
+}
+<div class="container about-section">
+    <h2 class="text-center mb-4">@ViewBag.Title</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">🚀 Наша миссия</h3>
+                    <p class="card-text">
+                        Мы делаем 3D-печать доступной и удобной для каждого.
+                        От прототипирования до готовых изделий — реализуем ваши идеи
+                        с высочайшей точностью и в кратчайшие сроки.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">🛠️ Технологии и материалы</h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong>FDM-печать:</strong> PLA, ABS, PETG, TPU
+                        </li>
+                        <li class="list-group-item">
+                            <strong>SLA-печать:</strong> Фотополимерные смолы
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Плотность заполнения:</strong> От 10% до 100%
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Поддержка форматов:</strong> STL, OBJ, 3MF
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">✅ Почему мы?</h3>
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <i class="fas fa-rocket"></i>
+                            <span>Средний срок выполнения заказа — 48 часов</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Гарантия конфиденциальности ваших моделей</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-calculator"></i>
+                            <span>Автоматический расчет стоимости онлайн</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-history"></i>
+                            <span>История всех заказов в личном кабинете</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cta-section text-center mt-5">
+        <h4>Готовы начать?</h4>
+        @Html.ActionLink("Создать первый заказ", "Create", "Order", null, new { @class = "btn btn-lg btn-success" })
+    </div>
+</div>
+
+<style>
+    .about-section {
+        padding: 40px 0;
+    }
+
+    .features-list .feature-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .feature-item i {
+        color: #007bff;
+        margin-right: 10px;
+        width: 25px;
+    }
+
+    .social-links .btn {
+        margin: 5px;
+    }
+
+    .cta-section {
+        background: #f8f9fa;
+        padding: 30px;
+        border-radius: 10px;
+    }
+</style>

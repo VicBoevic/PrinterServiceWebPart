@@ -1,0 +1,30 @@
+﻿@using System.Web.Mvc
+@{
+    ViewData["Title"] = "3D Печать на заказ";
+}
+
+
+<div class="text-center">
+    <h1 class="display-4">Добро пожаловать!</h1>
+    <p>Создайте свой заказ на 3D печать прямо сейчас</p>
+    <div class="mt-4">
+        @Html.ActionLink("Регистрация", "Register", "ClientAccount", null, new { @class = "btn btn-primary" })
+        @Html.ActionLink("Вход", "Login", "ClientAccount", null, new { @class = "btn btn-outline-secondary" })
+    </div>
+</div>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="user-panel">
+        <h3>Добро пожаловать, @User.Identity.Name!</h3>
+        @Html.ActionLink("Создать заказ", "Create", "Order", null, new { @class = "btn btn-success" })
+        @Html.ActionLink("Выйти", "Logout", "Account", null, new { @class = "btn btn-danger" })
+    </div>
+}
+else
+{
+    <div class="auth-buttons">
+        @Html.ActionLink("Войти", "Login", "Account", null, new { @class = "btn btn-primary" })
+        @Html.ActionLink("Регистрация", "Register", "Account", null, new { @class = "btn btn-secondary" })
+    </div>
+}

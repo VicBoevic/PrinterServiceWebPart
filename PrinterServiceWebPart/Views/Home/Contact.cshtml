@@ -1,0 +1,102 @@
+﻿@{
+    ViewBag.Title = "Контактная информация";
+}
+
+<div class="container contact-page">
+    <h2 class="text-center mb-4">@ViewBag.Title</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title"><i class="fas fa-map-marker-alt"></i> Наш офис</h3>
+                    <address>
+                        Санкт-Петербург, ул. Технологическая, 42<br>
+                        БЦ "Инновация", офис 305<br>
+                        <abbr title="Часы работы">🕒</abbr>
+                        Пн-Пт: 9:00 - 19:00
+                    </address>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title"><i class="fas fa-phone"></i> Свяжитесь с нами</h3>
+                    <address>
+                        <strong>Телефон:</strong><br>
+                        <a href="tel:+78123335577">+7 (812) 333-55-77</a><br><br>
+
+                        <strong>Email:</strong><br>
+                        <a href="mailto:support@3dprintservice.ru">support@3dprintservice.ru</a>
+                    </address>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h4 class="card-title mb-3"><i class="fas fa-share-alt"></i> Мы в соцсетях</h4>
+                    <div class="social-links">
+                        <a href="https://vk.com/3dprint_service"
+                           class="btn btn-outline-primary btn-lg"
+                           target="_blank">
+                            <i class="fab fa-vk"></i> ВКонтакте
+                        </a>
+                        <a href="https://t.me/print3d_service"
+                           class="btn btn-outline-info btn-lg"s
+                           target="_blank">
+                            <i class="fab fa-telegram"></i> Telegram
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="embed-responsive embed-responsive-16by9">
+                <iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3Aad0bafb0e8f0a9e3e8f8d0e5c4f4e5f3&amp;source=constructor"
+                        class="embed-responsive-item"
+                        frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .contact-page {
+        padding: 40px 0;
+    }
+
+    .card {
+        margin-bottom: 20px;
+        border: none;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    }
+
+    .card-title i {
+        margin-right: 10px;
+        color: #007bff;
+    }
+
+    .social-links .btn {
+        margin: 0 10px;
+        min-width: 180px;
+    }
+
+    address {
+        line-height: 1.8;
+        font-size: 16px;
+    }
+
+    .embed-responsive {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+</style>

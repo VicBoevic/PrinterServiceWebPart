@@ -1,0 +1,172 @@
+﻿@model PrinterServiceWebPart.ViewModels.OrdersListViewModel
+
+<!-- Добавляем Three.js и загрузчик GLTF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+
+<div class="container">
+    <h2>Заказы @Model.ClientName</h2>
+
+    <div class="row">
+        @foreach (var order in Model.Orders)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title">
+                            Заказ #@order.OrderName
+                            <span class="badge bg-light text-dark float-end">
+                                @order.RussianStatus   
+                            </span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div><i class="fas fa-calendar"></i> @order.CreateDate</div>
+                            <div><i class="fas fa-ruble-sign"></i> @order.Price</div>
+                        </div>
+
+                        <h6>Модели:</h6>
+                        <div class="row">
+                            @foreach (var modelItem in order.Models)
+                            {
+                                <div class="col-6 mb-3">
+                                    <div class="model-preview-card">
+                                        <div id="preview-@modelItem.ModelId" class="threejs-container"></div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Переместили card-footer внутрь card -->
+                    <div class="card-footer">
+                        @if (order.CanBeCanceled)
+                        {
+                            using (Html.BeginForm("CancelOrder", "OrdersList", new { orderId = order.Id }, FormMethod.Post, new { @class = "d-inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger btn-sm me-2">
+                                    <i class="fas fa-ban"></i> Отменить заказ
+                                </button>
+                            }
+                        }
+
+                        @if (order.CanAddReview)
+                        {
+                            if (order.HasReview)
+                            {
+                                <span class="text-success">Отзыв оставлен</span>
+                            }
+                            else
+                            {
+                                @Html.ActionLink("Оставить отзыв", "AddReview", new { orderId = order.Id },
+                                    new { @class = "btn btn-primary btn-sm" })
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .threejs-container {
+        width: 100%;
+        height: 200px; /* Фиксированная высота для превью */
+        background: #f0f0f0;
+    }
+
+    .model-preview-card {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 5px;
+        transition: transform 0.2s;
+    }
+
+        .model-preview-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 8px rgba(0,0,0,0.2);
+        }
+</style>
+
+<script>
+    // Функция для инициализации 3D-просмотра
+    async function initThreeJS(modelId) {
+        const containerId = `preview-${modelId}`;
+        const container = document.getElementById(containerId);
+
+        // Создаем базовые компоненты Three.js
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            container.clientWidth / container.clientHeight,
+            0.1,
+            1000
+        );
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setClearColor(0xf0f0f0);
+        container.appendChild(renderer.domElement);
+
+        // Добавляем освещение
+        const light = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(light);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(0, 1, 1);
+        scene.add(directionalLight);
+
+        // Загрузка модели
+        try {
+            const loader = new THREE.OBJLoader();
+            const model = await loader.loadAsync(`/Model/DownloadModel?modelId=${modelId}`);
+
+            scene.add(model);
+
+            // Настройка материалов (если не загружены из .mtl)
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = new THREE.MeshPhongMaterial({
+                        color: 0x808080, // Серый цвет по умолчанию
+                        shininess: 100
+                    });
+                }
+            });
+
+            // Настройка камеры
+            const bbox = new THREE.Box3().setFromObject(model);
+            const center = bbox.getCenter(new THREE.Vector3());
+            const size = bbox.getSize(new THREE.Vector3());
+
+            camera.position.copy(center);
+            camera.position.z += size.length() * 1.5;
+            camera.lookAt(center);
+
+            // Анимация
+            function animate() {
+                requestAnimationFrame(animate);
+                model.rotation.y += 0.005;
+                renderer.render(scene, camera);
+            }
+            animate();
+        } catch (error) {
+            console.error('Error loading model:', error);
+            container.innerHTML = '<div class="text-danger">Ошибка загрузки модели</div>';
+        }
+    }
+
+    // Инициализация для всех превью после загрузки страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        @foreach (var order in Model.Orders)
+        {
+            foreach (var modelItem in order.Models)
+            {
+                <text>
+                    initThreeJS('@modelItem.ModelId');
+                </text>
+            }
+        }
+    });
+</script>

@@ -1,0 +1,32 @@
+﻿@model PrinterServiceWebPart.ViewModels.ReviewViewModel
+@{
+    ViewBag.Title = "Оставить отзыв";
+}
+
+<h2>Отзыв для заказа #@Model.OrderId</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.OrderId)
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Score)
+        @Html.DropDownListFor(m => m.Score,
+            Enumerable.Range(1, 5).Select(i => new SelectListItem
+            {
+                Text = i.ToString(),
+                Value = i.ToString()
+            }),
+            new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Score)
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.ReviewText)
+        @Html.TextAreaFor(m => m.ReviewText, new { @class = "form-control", rows = 4 })
+        @Html.ValidationMessageFor(m => m.ReviewText)
+    </div>
+
+    <button type="submit" class="btn btn-primary">Отправить отзыв</button>
+}
