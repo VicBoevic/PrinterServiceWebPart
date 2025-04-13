@@ -100,18 +100,19 @@ namespace PrinterServiceWebPart.Controllers
 
             try
             {
-                // Расчет стоимости
-                var material = _materialRepo.GetMaterialById(model.SelectedMaterialId);
-                decimal total = CalculatePriceInner(material.Id, model.Density, model.Files);
+
                 var savedFiles = new List<string>();
                 foreach (var file in model.Files)
                 {
+                    //file.InputStream.Seek(0, SeekOrigin.Begin);
                     if (file != null)
                     {
                         savedFiles.Add(await _fileService.SaveFileAsync(file));
                     }
                 }
-                await _orderRepo.CreateOrderAsync(clientId, savedFiles, orderName, comment, material.Id, total);
+                // Расчет стоимости
+                decimal total = CalculatePriceInner(model.SelectedMaterialId, model.Density, model.Files) * 2;
+                await _orderRepo.CreateOrderAsync(clientId, savedFiles, orderName, comment, model.SelectedMaterialId, total);
                 return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
@@ -128,7 +129,10 @@ namespace PrinterServiceWebPart.Controllers
             {
 
                 decimal total = CalculatePriceInner(SelectedMaterialId, Density, Files);
-
+                foreach (var file in Files)
+                {
+                    file.InputStream.Seek(0, SeekOrigin.Begin);
+                }
                 return Json(new { success = true, totalPrice = total.ToString("N2") });
             }
             catch (Exception ex)
@@ -168,9 +172,10 @@ namespace PrinterServiceWebPart.Controllers
             }
 
             AssimpContext importer = new AssimpContext();
+            file.InputStream.Seek(0, SeekOrigin.Begin);
             using (var stream = file.InputStream)
             {
-
+                
                 Scene scene = importer.ImportFileFromStream(stream, PostProcessSteps.Triangulate | PostProcessSteps.JoinIdenticalVertices | PostProcessSteps.SortByPrimitiveType);
 
 

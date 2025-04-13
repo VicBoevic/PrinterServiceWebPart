@@ -27,7 +27,7 @@ namespace PrinterServiceWebPart.Repositories
             var conn = new NpgsqlConnection(_connectionString);
             conn.Execute(
                 @"INSERT INTO client (fullname, phone_number, email, password)
-            VALUES (@FullName, @PhoneNumber, @Email, @PasswordHash)",
+            VALUES (@FullName, @PhoneNumber, @Email, @Password)",
                 client);
         }
 

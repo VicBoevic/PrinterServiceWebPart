@@ -25,39 +25,61 @@ namespace PrinterServiceWebPart.Services
 
         public async Task<string> SaveFileAsync(HttpPostedFileBase file)
         {
+            
+            if (file == null || file.ContentLength == 0)
+                throw new ArgumentException("Файл не предоставлен или пуст.");
+
             if (!Directory.Exists(_uploadPath))
                 Directory.CreateDirectory(_uploadPath);
 
-            // Очищаем имя файла от недопустимых символов
-            var originalFileName = Path.GetFileName(file.FileName);
-            var safeFileName = string.Join("_", originalFileName.Split(Path.GetInvalidFileNameChars()));
+            // Очистка имени файла от недопустимых символов и путей
+            var originalFileName = Path.GetFileName(file.FileName.Trim());
+            var cleanedFileName = CleanFileName(originalFileName);
 
-            // Создаем уникальное имя файла
-            var fileName = await GetUniqueFileNameAsync(safeFileName);
-            var filePath = Path.Combine(_uploadPath, fileName);
+            // Генерация уникального имени файла
+            var finalFileName = GetUniqueFileName(cleanedFileName);
+            var filePath = Path.Combine(_uploadPath, finalFileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.InputStream.CopyToAsync(stream);
+                file.InputStream.Seek(0, SeekOrigin.Begin); // ← Перемотка
+            }
+
+            return finalFileName;
+        }
+
+        private string CleanFileName(string fileName)
+        {
+            // Удаление недопустимых символов
+            var invalidChars = Path.GetInvalidFileNameChars();
+            var cleaned = new string(fileName
+                .Where(ch => !invalidChars.Contains(ch))
+                .ToArray());
+
+            // Замена пустого имени на "file"
+            if (string.IsNullOrWhiteSpace(cleaned))
+            {
+                cleaned = "file" + Path.GetExtension(fileName) ?? "";
+            }
+
+            return cleaned;
+        }
+
+        private string GetUniqueFileName(string baseFileName)
+        {
+            var counter = 1;
+            var fileName = baseFileName;
+            var nameWithoutExt = Path.GetFileNameWithoutExtension(baseFileName);
+            var extension = Path.GetExtension(baseFileName);
+
+            while (File.Exists(Path.Combine(_uploadPath, fileName)))
+            {
+                fileName = $"{nameWithoutExt} ({counter++}){extension}";
             }
 
             return fileName;
         }
 
-        private async Task<string> GetUniqueFileNameAsync(string fileName)
-        {
-            var count = 1;
-            var newFileName = fileName;
-            var extension = Path.GetExtension(fileName);
-            var nameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
-
-            // Проверяем существование файла асинхронно
-            while (await Task.Run(() => File.Exists(Path.Combine(_uploadPath, newFileName))))
-            {
-                newFileName = $"{nameWithoutExtension}_{count++}{extension}";
-            }
-
-            return newFileName;
-        }
-    }
+    }  
 }   

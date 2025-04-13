@@ -94,7 +94,7 @@
                 return;
             }
 
-            $.ajax({
+           $.ajax({
                 url: '@Url.Action("CalculatePrice", "Order")',
                 method: 'POST',
                 data: formData,
@@ -111,8 +111,25 @@
         }
 
         function submitForm() {
-            document.getElementById('orderForm').submit();
-            $('#confirmModal').modal('hide');
+            const form = document.getElementById('orderForm');
+            const formData = new FormData(form);
+
+            // Явно добавляем файлы
+            const filesInput = document.getElementById('files');
+            for (let i = 0; i < filesInput.files.length; i++) {
+                formData.append('Files', filesInput.files[i]);
+            }
+
+            $.ajax({
+                url: '@Url.Action("Create", "Order")',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                error: function(xhr) {
+                    alert('Ошибка: ' + xhr.responseText);
+                }
+            });
         }
     </script>
 }
